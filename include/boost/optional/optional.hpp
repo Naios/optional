@@ -498,7 +498,8 @@ class optional_base : public optional_tag
        ::new (m_storage.address()) internal_type( boost::forward<Args>(args)... );
        m_initialized = true ;
      }
-#elif (!defined BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES)
+#else
+#ifndef  BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES
     template<class Arg>
     void emplace_assign ( Arg&& arg )
      {
@@ -520,6 +521,13 @@ class optional_base : public optional_tag
      {
        destroy();
        ::new (m_storage.address()) internal_type( arg );
+       m_initialized = true ;
+     }
+#endif
+     void emplace_assign ()
+     {
+       destroy();
+       ::new (m_storage.address()) internal_type();
        m_initialized = true ;
      }
 #endif
@@ -970,7 +978,8 @@ class optional : public optional_detail::optional_base<T>
      {
        this->emplace_assign( boost::forward<Args>(args)... );
      }
-#elif (!defined BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES)
+#else
+#ifndef  BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES
     template<class Arg>
     void emplace ( Arg&& arg )
      {
@@ -987,6 +996,11 @@ class optional : public optional_detail::optional_base<T>
     void emplace ( Arg& arg )
      {
        this->emplace_assign( arg );
+     }
+#endif
+    void emplace ()
+     {
+       this->emplace_assign();
      }
 #endif
 
